@@ -2,11 +2,15 @@
 include 'config.php';
 $id = $_GET['id'];
 
+//menyimpan data pembeli dari tabel pembelian
 $data = $conn->query("SELECT * FROM pembelian WHERE id=$id")->fetch_assoc();
+//menyimpan data makanan dari tabel makanan
 $makanan = $conn->query("SELECT * FROM makanan WHERE id={$data['makanan_id']}")->fetch_assoc();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $jumlahBaru = $_POST['jumlah'];
+  //Mengambil jumlah pembelian baru yang diketik oleh user 
+    $jumlahBaru = $_POST['jumlah'];
+    // menghitung total harga dan makanan
   $totalBaru = $jumlahBaru * $makanan['harga'];
 
   // Hitung stok kembali
@@ -14,7 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $stokBaru = $makanan['stok'] - $selisih;
 
   if ($stokBaru >= 0) {
+    // update stok baru
     $conn->query("UPDATE makanan SET stok=$stokBaru WHERE id={$makanan['id']}");
+    // update data  pembelian
     $conn->query("UPDATE pembelian SET jumlah=$jumlahBaru, total=$totalBaru WHERE id=$id");
     header("Location: index.php#buy");
   } else {
